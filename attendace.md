@@ -12,3 +12,21 @@ Xuất thư viện sang txt
 --pip freeze > requirements.txt
 Run serve --backend:
 --uvicorn main:app --reload
+
+Hoc PostgreSQL và pgAdmin4 Basic
+
+CREATE TABLE users (
+id SERIAL PRIMARY KEY,
+name VARCHAR(100),
+email VARCHAR(100),
+password VARCHAR(100)
+);
+
+INSERT INTO users(name,email,password)
+VALUES(
+'Duong',
+'duong@gmail.com',
+'123456'
+);
+
+.....
