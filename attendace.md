@@ -30,3 +30,7 @@ VALUES(
 );
 
 .....
+
+SQLAlchemy ORM
+--pip install sqlalchemy psycopg2-binary
+
