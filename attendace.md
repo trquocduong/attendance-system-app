@@ -33,4 +33,5 @@ VALUES(
 
 SQLAlchemy ORM
 --pip install sqlalchemy psycopg2-binary
-
+Cài passlib
+pip install "passlib[bcrypt]"

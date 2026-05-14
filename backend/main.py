@@ -2,7 +2,8 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from database import engine, SessionLocal
 from models import User, Base
-from schemas import UserUpdate, UserCreate
+from schemas import UserUpdate, UserCreate, UserLogin
+from auth import hash_pwd, verify_password
 
 app = FastAPI()
 
@@ -55,7 +56,7 @@ def create_user(user: UserCreate):
     new_user = User(
         name=user.name,
         email=user.email,
-        password=user.password
+        password=hash_pwd(user.password)
     )
     db.add(new_user)
     db.commit()
@@ -113,4 +114,39 @@ def delete_user(user_id: int):
 
     return {
         "message": "User deleted successfully"
+    }
+
+
+@app.post("/login")
+def login(user: UserLogin):
+
+    db = SessionLocal()
+
+    existing_user = db.query(User).filter(
+        User.email == user.email
+    ).first()
+
+    if not existing_user:
+        db.close()
+
+        return {
+            "message": "Email not found"
+        }
+
+    is_valid = verify_password(
+        user.password,
+        existing_user.password
+    )
+
+    if not is_valid:
+        db.close()
+
+        return {
+            "message": "Invalid password"
+        }
+
+    db.close()
+
+    return {
+        "message": "Login success"
     }
