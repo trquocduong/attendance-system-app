@@ -1,5 +1,5 @@
 import customtkinter as ctk
-
+import requests
 
 # setup theme
 ctk.set_appearance_mode("dark")
@@ -22,13 +22,13 @@ title_label = ctk.CTkLabel(
 )
 title_label.pack(pady=10)
 # username input
-username_entry = ctk.CTkEntry(
+email_entry = ctk.CTkEntry(
     app,
-    placeholder_text="Username",
+    placeholder_text="Email",
     width=300
 )
 
-username_entry.pack(pady=10)
+email_entry.pack(pady=10)
 # password input
 password_entry = ctk.CTkEntry(
     app,
@@ -39,15 +39,41 @@ password_entry = ctk.CTkEntry(
 
 password_entry.pack(pady=10)
 
+# RESULT LABEL
+result_label = ctk.CTkLabel(
+    app,
+    text=""
+)
+
+result_label.pack(pady=10)
+
 
 def handle_login():
 
-    username = username_entry.get()
+    # username = username_entry.get()
 
+    # password = password_entry.get()
+
+    # print(username)
+    # print(password)
+    # lấy dữ liệu từ input hiển thị vào consolog
+    email = email_entry.get()
     password = password_entry.get()
+    login_data = {
+        "email": email,
+        "password": password
+    }
 
-    print(username)
-    print(password)
+    response = requests.post(
+        "http://localhost:8000/login",
+        json=login_data
+    )
+
+    data = response.json()
+
+    result_label.configure(
+        text=data["message"]
+    )
 
 
 login_button = ctk.CTkButton(
