@@ -1,4 +1,5 @@
 import customtkinter as ctk
+import requests
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
@@ -211,38 +212,152 @@ class DashboardApp(ctk.CTk):
         title.pack(
             pady=30
         )
+        # refresh button
+        refresh_btn = ctk.CTkButton(
+            self.content,
+            text="Refresh Data",
+            command=self.show_users
+        )
+
+        refresh_btn.pack(pady=10)
+
+        # table frame
+        table_frame = ctk.CTkFrame(
+            self.content
+        )
+
+        table_frame.pack(
+            fill="both",
+            expand=True,
+            padx=10,
+            pady=10
+        )
 
         # Fake users
-        users = [
-            "Duong",
-            "Admin",
-            "Nhan Vien 01",
-            "Nhan Vien 02"
+        # users = [
+        #     "Duong",
+        #     "Admin",
+        #     "Nhan Vien 01",
+        #     "Nhan Vien 02"
+        # ]
+
+        # users = response.json()
+
+        # for user in users:
+        #     user_item = ctk.CTkFrame(
+        #         self.content,
+        #         height=60
+        #     )
+        #     user_item.pack(
+        #         fill="x",
+        #         padx=40,
+        #         pady=10
+        #     )
+
+        #     user_label = ctk.CTkLabel(
+        #         user_item,
+        #         text=user,
+        #         font=("Arial", 20)
+        #     )
+        #     user_label.pack(
+        #         side="left",
+        #         padx=20,
+        #         pady=15
+        #     )
+        response = requests.get(
+            "http://127.0.0.1:8000/users"
+        )
+        users = response.json()
+
+        header_frame = ctk.CTkFrame(
+            table_frame
+        )
+
+        header_frame.pack(
+            fill="x",
+            pady=10
+        )
+
+        headers = [
+            "ID",
+            "Name",
+            "Email",
+            "Password"
         ]
 
-        for user in users:
-            user_item = ctk.CTkFrame(
-                self.content,
-                height=60
+        for header in headers:
+
+            label = ctk.CTkLabel(
+                header_frame,
+                text=header,
+                width=200,
+                font=("Arial", 18, "bold")
             )
-            user_item.pack(
+
+            label.pack(
+                side="left",
+                padx=10,
+                pady=10
+            )
+        for user in users:
+
+            row_frame = ctk.CTkFrame(
+                table_frame
+            )
+
+            row_frame.pack(
                 fill="x",
-                padx=40,
+                pady=5
+            )
+
+            id_label = ctk.CTkLabel(
+                row_frame,
+                text=user["id"],
+                width=200
+            )
+
+            id_label.pack(
+                side="left",
+                padx=10,
                 pady=10
             )
 
-            user_label = ctk.CTkLabel(
-                user_item,
-                text=user,
-                font=("Arial", 20)
+            name_label = ctk.CTkLabel(
+                row_frame,
+                text=user["name"],
+                width=200
             )
-            user_label.pack(
+
+            name_label.pack(
                 side="left",
-                padx=20,
-                pady=15
+                padx=10,
+                pady=10
+            )
+
+            email_label = ctk.CTkLabel(
+                row_frame,
+                text=user["email"],
+                width=200
+            )
+
+            email_label.pack(
+                side="left",
+                padx=10,
+                pady=10
+            )
+            password_label = ctk.CTkLabel(
+                row_frame,
+                text="*****",
+                width=200
+            )
+            password_label.pack(
+                side="left",
+                padx=10,
+                pady=10
             )
 
     # ATTENDANCE PAGE
+
     def show_attendance(self):
         self.clear_content()
 
