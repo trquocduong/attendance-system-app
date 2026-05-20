@@ -202,26 +202,136 @@ class DashboardApp(ctk.CTk):
 
     # USERS PAGE (Đã đưa ra ngoài hàm build_ui)
     def show_users(self):
-        self.clear_content()
 
+        self.clear_content()
         title = ctk.CTkLabel(
             self.content,
             text="Users Management",
             font=("Arial", 32, "bold")
         )
-        title.pack(
-            pady=30
+
+        title.pack(pady=20)
+        form_frame = ctk.CTkFrame(
+            self.content
         )
-        # refresh button
+
+        form_frame.pack(
+            fill="x",
+            padx=20,
+            pady=10
+        )
+
+        # name input
+        name_entry = ctk.CTkEntry(
+            form_frame,
+            placeholder_text="Name",
+            width=200
+        )
+
+        name_entry.pack(
+            side="left",
+            padx=10,
+            pady=20
+        )
+
+        # email input
+        email_entry = ctk.CTkEntry(
+            form_frame,
+            placeholder_text="Email",
+            width=200
+        )
+
+        email_entry.pack(
+            side="left",
+            padx=10,
+            pady=20
+        )
+
+        # password input
+        password_entry = ctk.CTkEntry(
+            form_frame,
+            placeholder_text="Password",
+            show="*",
+            width=200
+        )
+
+        password_entry.pack(
+            side="left",
+            padx=10,
+            pady=20
+        )
+
+        # result label
+        result_label = ctk.CTkLabel(
+            self.content,
+            text=""
+        )
+
+        result_label.pack()
+
+        def handle_add_user():
+
+            name = name_entry.get()
+
+            email = email_entry.get()
+
+            password = password_entry.get()
+            if (
+                name == ""
+                or email == ""
+                or password == ""
+            ):
+
+                result_label.configure(
+                    text="Please fill all fields"
+                )
+
+                return
+
+            user_data = {
+                "name": name,
+                "email": email,
+                "password": password
+            }
+
+            response = requests.post(
+                "http://127.0.0.1:8000/users",
+                json=user_data
+            )
+
+            data = response.json()
+            result_label.configure(
+                text=data["message"]
+            )
+
+            # clear input
+            name_entry.delete(0, "end")
+
+            email_entry.delete(0, "end")
+
+            password_entry.delete(0, "end")
+
+            # refresh users
+            self.show_users()
+        add_btn = ctk.CTkButton(
+            form_frame,
+            text="Add User",
+            command=handle_add_user
+        )
+
+        add_btn.pack(
+            side="left",
+            padx=10
+        )
         refresh_btn = ctk.CTkButton(
             self.content,
-            text="Refresh Data",
+            text="Refresh",
             command=self.show_users
         )
 
-        refresh_btn.pack(pady=10)
-
-        # table frame
+        refresh_btn.pack(
+            pady=10
+        )
         table_frame = ctk.CTkFrame(
             self.content
         )
@@ -229,60 +339,29 @@ class DashboardApp(ctk.CTk):
         table_frame.pack(
             fill="both",
             expand=True,
-            padx=10,
-            pady=10
+            padx=20,
+            pady=20
         )
+        # GET USERS API
 
-        # Fake users
-        # users = [
-        #     "Duong",
-        #     "Admin",
-        #     "Nhan Vien 01",
-        #     "Nhan Vien 02"
-        # ]
-
-        # users = response.json()
-
-        # for user in users:
-        #     user_item = ctk.CTkFrame(
-        #         self.content,
-        #         height=60
-        #     )
-        #     user_item.pack(
-        #         fill="x",
-        #         padx=40,
-        #         pady=10
-        #     )
-
-        #     user_label = ctk.CTkLabel(
-        #         user_item,
-        #         text=user,
-        #         font=("Arial", 20)
-        #     )
-        #     user_label.pack(
-        #         side="left",
-        #         padx=20,
-        #         pady=15
-        #     )
         response = requests.get(
             "http://127.0.0.1:8000/users"
         )
-        users = response.json()
 
+        users = response.json()
         header_frame = ctk.CTkFrame(
             table_frame
         )
 
         header_frame.pack(
             fill="x",
-            pady=10
+            pady=5
         )
 
         headers = [
             "ID",
             "Name",
-            "Email",
-            "Password"
+            "Email"
         ]
 
         for header in headers:
@@ -345,17 +424,6 @@ class DashboardApp(ctk.CTk):
                 padx=10,
                 pady=10
             )
-            password_label = ctk.CTkLabel(
-                row_frame,
-                text="*****",
-                width=200
-            )
-            password_label.pack(
-                side="left",
-                padx=10,
-                pady=10
-            )
-
     # ATTENDANCE PAGE
 
     def show_attendance(self):
