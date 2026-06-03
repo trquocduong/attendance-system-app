@@ -1,4 +1,5 @@
 import customtkinter as ctk
+from tkinter import messagebox
 import requests
 
 ctk.set_appearance_mode("dark")
@@ -361,7 +362,8 @@ class DashboardApp(ctk.CTk):
         headers = [
             "ID",
             "Name",
-            "Email"
+            "Email",
+            "Action"
         ]
 
         for header in headers:
@@ -424,7 +426,94 @@ class DashboardApp(ctk.CTk):
                 padx=10,
                 pady=10
             )
+            edit_btn = ctk.CTkButton(
+                row_frame,
+                text="Edit",
+                width=80,
+                command=lambda u=user: self.open_edit_window(u)
+            )
+
+            edit_btn.pack(
+                side="left",
+                padx=5
+            )
+
+            delete_btn = ctk.CTkButton(
+                row_frame,
+                text="Delete",
+                width=80,
+                fg_color="red",
+                command=lambda uid=user["id"]: self.delete_user(uid)
+            )
+
+            delete_btn.pack(
+                side="left",
+                padx=5
+            )
     # ATTENDANCE PAGE
+
+    def open_edit_window(self, user):
+
+        window = ctk.CTkToplevel(self)
+
+        window.title("Edit User")
+        window.geometry("400x300")
+
+        name_entry = ctk.CTkEntry(
+            window,
+            width=250
+        )
+
+        name_entry.insert(0, user["name"])
+        name_entry.pack(pady=10)
+
+        email_entry = ctk.CTkEntry(
+            window,
+            width=250
+        )
+
+        email_entry.insert(0, user["email"])
+        email_entry.pack(pady=10)
+
+        save_btn = ctk.CTkButton(
+            window,
+            text="Save",
+            command=lambda: self.update_user(
+                user["id"],
+                name_entry.get(),
+                email_entry.get(),
+                window
+            )
+        )
+
+        save_btn.pack(
+            pady=20
+        )
+
+    def update_user(
+        self,
+        user_id,
+        name,
+        email,
+        window
+    ):
+
+        data = {
+            "name": name,
+            "email": email,
+            "password": "123456"
+        }
+
+        response = requests.put(
+            f"http://127.0.0.1:8000/users/{user_id}",
+            json=data
+        )
+
+        print(response.json())
+
+        window.destroy()
+
+        self.show_users()
 
     def show_attendance(self):
         self.clear_content()
@@ -446,6 +535,24 @@ class DashboardApp(ctk.CTk):
         attendance_text.pack(
             pady=50
         )
+
+    def delete_user(self, user_id):
+
+        confirm = messagebox.askyesno(
+            "Confirm",
+            "Are you sure want delete user?"
+        )
+
+        if not confirm:
+            return
+
+        response = requests.delete(
+            f"http://127.0.0.1:8000/users/{user_id}"
+        )
+
+        print(response.json())
+
+        self.show_users()
 
     # LOGOUT
     def logout(self):
