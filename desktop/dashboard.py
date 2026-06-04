@@ -200,6 +200,16 @@ class DashboardApp(ctk.CTk):
         status_label.pack(
             pady=40
         )
+        footer = ctk.CTkLabel(
+            self.content,
+            text="Attendance System v1.0",
+            text_color="gray"
+        )
+
+        footer.pack(
+            side="bottom",
+            pady=15
+        )
 
     # USERS PAGE (Đã đưa ra ngoài hàm build_ui)
     def show_users(self):
