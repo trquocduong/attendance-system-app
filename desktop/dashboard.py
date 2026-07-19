@@ -334,7 +334,29 @@ class DashboardApp(ctk.CTk):
             self.show_users()
         except Exception as e:
             messagebox.showerror("Error", f"Failed to delete user: {e}")
+# Tìm chỗ có hàm delete_user và thêm hàm này ngay phía dưới:
+    def delete_attendance(self, attendance_id):
+        confirm = messagebox.askyesno(
+            "Confirm",
+            "Are you sure you want to delete this attendance record?"
+        )
+        if not confirm:
+            return
 
+        try:
+            # Gọi tới đúng endpoint @router.delete("/attendance/{user_id}") của FastAPI
+            # Lưu ý: Backend bạn đang đặt tham số là user_id nhưng truyền vào url, hãy đảm bảo đồng bộ
+            response = requests.delete(
+                f"http://127.0.0.1:8000/attendance/{attendance_id}",
+                timeout=10
+            )
+            data = response.json()
+            messagebox.showinfo("Success", data.get("message", "Record deleted"))
+            
+            # Tải lại trang history để cập nhật dữ liệu mới
+            self.attendance_view()
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to delete record: {e}")
     # LOGOUT
     def logout(self):
         self.destroy()

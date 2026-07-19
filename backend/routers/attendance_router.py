@@ -7,7 +7,8 @@ from schemas.attendance_schema import AttendanceCreate, CheckOutRequest
 from services.attendance_service import (
     check_in_service,
     check_out_service,
-    get_attendance_history
+    get_attendance_history,
+    del_attendance
 
 )
 
@@ -64,4 +65,14 @@ def checkout(data: CheckOutRequest):
         "message": "Check Out Success",
         "attendance_id": result.id,
         "check_out": result.check_out
+    }
+    
+@router.delete("/attendance/{user_id}")
+def delete_attendance(user_id:int):
+    db = SessionLocal()
+    result = del_attendance(db, user_id)
+    db.close()
+    return {
+        "message": "User delete",
+        "data": result.id
     }

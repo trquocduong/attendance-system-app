@@ -69,15 +69,6 @@ def attendance_view_show(app):
             row_frame, fg_color="transparent", width=180)
         action_frame.pack(side="left", padx=5)
 
-        # Nút Sửa (Edit) - Sử dụng đúng biến r=record thay vì user
-        edit_btn = ctk.CTkButton(
-            action_frame,
-            text="Edit",
-            width=70,
-            command=lambda r=record: app.open_edit_window(r)
-        )
-        edit_btn.pack(side="left", padx=5)
-
         # Nút Xóa (Delete) - Sử dụng đúng biến rid=record["id"]
         delete_btn = ctk.CTkButton(
             action_frame,
@@ -85,6 +76,6 @@ def attendance_view_show(app):
             width=70,
             fg_color="red",
             hover_color="darkred",
-            command=lambda rid=record.get("id"): app.delete_user(rid)
+            command=lambda rid=record["id"]: app.delete_attendance(rid)
         )
         delete_btn.pack(side="left", padx=5)

@@ -47,3 +47,13 @@ def check_out_service(
     db.refresh(attendance)
 
     return attendance
+def del_attendance(db,user_id):
+    attendance = db.query(Attendance).filter(Attendance.id == user_id).first()
+    if not attendance:
+        db.close()
+        return{
+            "message":"Attendance Not found"
+        }
+    db.delete(attendance)
+    db.commit()
+    return attendance
