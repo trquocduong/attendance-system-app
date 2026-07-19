@@ -1,6 +1,8 @@
 import customtkinter as ctk
 from tkinter import messagebox
 import requests
+from admin.attendance.attendance_view import attendance_view_show
+from admin.user.user_view import users_view_show
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
@@ -51,7 +53,7 @@ class DashboardApp(ctk.CTk):
             fill="x"
         )
 
-        # User button
+        # User button (Đã sửa từ self.users_view_show thành self.show_users)
         self.user_btn = ctk.CTkButton(
             self.sidebar,
             text="User",
@@ -72,6 +74,19 @@ class DashboardApp(ctk.CTk):
             command=self.show_attendance
         )
         self.attendance_btn.pack(
+            pady=10,
+            padx=20,
+            fill="x"
+        )
+
+        # History button (Đã chuyển từ hàm check_out lên đây và liên kết với attendance_view)
+        self.history_btn = ctk.CTkButton(
+            self.sidebar,
+            text="History",
+            height=45,
+            command=self.attendance_view
+        )
+        self.history_btn.pack(
             pady=10,
             padx=20,
             fill="x"
@@ -107,12 +122,12 @@ class DashboardApp(ctk.CTk):
         # Default page
         self.show_dashboard()
 
-    # CLEAR CONTENT (Đã đưa ra ngoài hàm build_ui)
+    # CLEAR CONTENT
     def clear_content(self):
         for widget in self.content.winfo_children():
             widget.destroy()
 
-    # DASHBOARD PAGE (Đã sửa lại thụt lề chuẩn)
+    # DASHBOARD PAGE
     def show_dashboard(self):
         self.clear_content()
 
@@ -211,269 +226,23 @@ class DashboardApp(ctk.CTk):
             pady=15
         )
 
-    # USERS PAGE (Đã đưa ra ngoài hàm build_ui)
+    # Đã đổi tên từ users_view sang show_users để khớp với update_user/delete_user và bên view ngoài gọi vào
     def show_users(self):
-
         self.clear_content()
-        title = ctk.CTkLabel(
-            self.content,
-            text="Users Management",
-            font=("Arial", 32, "bold")
-        )
+        users_view_show(self)
 
-        title.pack(pady=20)
-        form_frame = ctk.CTkFrame(
-            self.content
-        )
-
-        form_frame.pack(
-            fill="x",
-            padx=20,
-            pady=10
-        )
-
-        # name input
-        name_entry = ctk.CTkEntry(
-            form_frame,
-            placeholder_text="Name",
-            width=200
-        )
-
-        name_entry.pack(
-            side="left",
-            padx=10,
-            pady=20
-        )
-
-        # email input
-        email_entry = ctk.CTkEntry(
-            form_frame,
-            placeholder_text="Email",
-            width=200
-        )
-
-        email_entry.pack(
-            side="left",
-            padx=10,
-            pady=20
-        )
-
-        # password input
-        password_entry = ctk.CTkEntry(
-            form_frame,
-            placeholder_text="Password",
-            show="*",
-            width=200
-        )
-
-        password_entry.pack(
-            side="left",
-            padx=10,
-            pady=20
-        )
-
-        # result label
-        result_label = ctk.CTkLabel(
-            self.content,
-            text=""
-        )
-
-        result_label.pack()
-
-        def handle_add_user():
-
-            name = name_entry.get()
-
-            email = email_entry.get()
-
-            password = password_entry.get()
-            if (
-                name == ""
-                or email == ""
-                or password == ""
-            ):
-
-                result_label.configure(
-                    text="Please fill all fields"
-                )
-
-                return
-
-            user_data = {
-                "name": name,
-                "email": email,
-                "password": password
-            }
-
-            response = requests.post(
-                "http://127.0.0.1:8000/users",
-                json=user_data
-            )
-
-            data = response.json()
-            result_label.configure(
-                text=data["message"]
-            )
-
-            # clear input
-            name_entry.delete(0, "end")
-
-            email_entry.delete(0, "end")
-
-            password_entry.delete(0, "end")
-
-            # refresh users
-            self.show_users()
-        add_btn = ctk.CTkButton(
-            form_frame,
-            text="Add User",
-            command=handle_add_user
-        )
-
-        add_btn.pack(
-            side="left",
-            padx=10
-        )
-        refresh_btn = ctk.CTkButton(
-            self.content,
-            text="Refresh",
-            command=self.show_users
-        )
-
-        refresh_btn.pack(
-            pady=10
-        )
-        table_frame = ctk.CTkFrame(
-            self.content
-        )
-
-        table_frame.pack(
-            fill="both",
-            expand=True,
-            padx=20,
-            pady=20
-        )
-        # GET USERS API
-
-        response = requests.get(
-            "http://127.0.0.1:8000/users"
-        )
-
-        users = response.json()
-        header_frame = ctk.CTkFrame(
-            table_frame
-        )
-
-        header_frame.pack(
-            fill="x",
-            pady=5
-        )
-
-        headers = [
-            "ID",
-            "Name",
-            "Email",
-            "Action"
-        ]
-
-        for header in headers:
-
-            label = ctk.CTkLabel(
-                header_frame,
-                text=header,
-                width=200,
-                font=("Arial", 18, "bold")
-            )
-
-            label.pack(
-                side="left",
-                padx=10,
-                pady=10
-            )
-        for user in users:
-
-            row_frame = ctk.CTkFrame(
-                table_frame
-            )
-
-            row_frame.pack(
-                fill="x",
-                pady=5
-            )
-
-            id_label = ctk.CTkLabel(
-                row_frame,
-                text=user["id"],
-                width=200
-            )
-
-            id_label.pack(
-                side="left",
-                padx=10,
-                pady=10
-            )
-
-            name_label = ctk.CTkLabel(
-                row_frame,
-                text=user["name"],
-                width=200
-            )
-
-            name_label.pack(
-                side="left",
-                padx=10,
-                pady=10
-            )
-
-            email_label = ctk.CTkLabel(
-                row_frame,
-                text=user["email"],
-                width=200
-            )
-
-            email_label.pack(
-                side="left",
-                padx=10,
-                pady=10
-            )
-            edit_btn = ctk.CTkButton(
-                row_frame,
-                text="Edit",
-                width=80,
-                command=lambda u=user: self.open_edit_window(u)
-            )
-
-            edit_btn.pack(
-                side="left",
-                padx=5
-            )
-
-            delete_btn = ctk.CTkButton(
-                row_frame,
-                text="Delete",
-                width=80,
-                fg_color="red",
-                command=lambda uid=user["id"]: self.delete_user(uid)
-            )
-
-            delete_btn.pack(
-                side="left",
-                padx=5
-            )
-    # ATTENDANCE PAGE
-
+    # EDIT USER WINDOW
     def open_edit_window(self, user):
-
         window = ctk.CTkToplevel(self)
-
         window.title("Edit User")
         window.geometry("400x300")
+        window.lift()  # Đưa cửa sổ lên phía trước
+        window.focus_force()
 
         name_entry = ctk.CTkEntry(
             window,
             width=250
         )
-
         name_entry.insert(0, user["name"])
         name_entry.pack(pady=10)
 
@@ -481,7 +250,6 @@ class DashboardApp(ctk.CTk):
             window,
             width=250
         )
-
         email_entry.insert(0, user["email"])
         email_entry.pack(pady=10)
 
@@ -495,36 +263,29 @@ class DashboardApp(ctk.CTk):
                 window
             )
         )
-
         save_btn.pack(
             pady=20
         )
 
-    def update_user(
-        self,
-        user_id,
-        name,
-        email,
-        window
-    ):
-
+    def update_user(self, user_id, name, email, window):
         data = {
             "name": name,
             "email": email,
             "password": "123456"
         }
+        try:
+            response = requests.put(
+                f"http://127.0.0.1:8000/users/{user_id}",
+                json=data,
+                timeout=10
+            )
+            print(response.json())
+            window.destroy()
+            self.show_users()
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to update user: {e}")
 
-        response = requests.put(
-            f"http://127.0.0.1:8000/users/{user_id}",
-            json=data
-        )
-
-        print(response.json())
-
-        window.destroy()
-
-        self.show_users()
-
+    # ATTENDANCE PAGE
     def show_attendance(self):
         self.clear_content()
 
@@ -537,36 +298,79 @@ class DashboardApp(ctk.CTk):
             pady=30
         )
 
-        attendance_text = ctk.CTkLabel(
+        checkin_btn = ctk.CTkButton(
             self.content,
-            text="Camera Attendance Coming Soon...",
-            font=("Arial", 22)
+            text="Check In",
+            height=50,
+            command=self.check_in
         )
-        attendance_text.pack(
-            pady=50
+        checkin_btn.pack(
+            pady=20
+        )
+        checkout_btn = ctk.CTkButton(
+            self.content,
+            text="Check Out",
+            height=50,
+            fg_color="red",
+            command=self.check_out
+        )
+        checkout_btn.pack(
+            pady=20
         )
 
     def delete_user(self, user_id):
-
         confirm = messagebox.askyesno(
             "Confirm",
-            "Are you sure want delete user?"
+            "Are you sure want to delete this user?"
         )
-
         if not confirm:
             return
 
-        response = requests.delete(
-            f"http://127.0.0.1:8000/users/{user_id}"
-        )
-
-        print(response.json())
-
-        self.show_users()
+        try:
+            response = requests.delete(
+                f"http://127.0.0.1:8000/users/{user_id}"
+            )
+            print(response.json())
+            self.show_users()
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to delete user: {e}")
 
     # LOGOUT
     def logout(self):
         self.destroy()
+
+    # Check in/out
+    def check_in(self):
+        user_id = 1
+        try:
+            response = requests.post(
+                "http://127.0.0.1:8000/check-in",
+                json={"user_id": user_id}
+            )
+            data = response.json()
+            print("Dữ liệu thực tế từ server:", data)
+            messagebox.showinfo("Success", data.get(
+                "message", "Checked in successfully!"))
+        except Exception as e:
+            messagebox.showerror("Error", f"Connection failed: {e}")
+
+    def check_out(self):
+        user_id = 1
+        try:
+            response = requests.post(
+                "http://127.0.0.1:8000/checkout",
+                json={"user_id": user_id}
+            )
+            data = response.json()
+            print("Dữ liệu thực tế từ server:", data)
+            messagebox.showinfo("Success", data.get(
+                "message", "Checked out successfully!"))
+        except Exception as e:
+            messagebox.showerror("Error", f"Connection failed: {e}")
+
+    def attendance_view(self):
+        self.clear_content()
+        attendance_view_show(self)
 
 
 app = DashboardApp()

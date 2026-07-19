@@ -2,13 +2,27 @@ from fastapi import APIRouter
 
 from database import SessionLocal
 
-from schemas.attendance_schema import AttendanceCreate
+from schemas.attendance_schema import AttendanceCreate, CheckOutRequest
 
 from services.attendance_service import (
-    check_in_service
+    check_in_service,
+    check_out_service,
+    get_attendance_history
+
 )
 
 router = APIRouter()
+
+
+@router.get("/attendance")
+def get_attendance():
+    db = SessionLocal()
+
+    attendance = get_attendance_history(db)
+
+    db.close()
+
+    return attendance
 
 
 @router.post("/check-in")
@@ -26,4 +40,28 @@ def check_in(data: AttendanceCreate):
     return {
         "message": "Check In Success",
         "attendance_id": result.id
+    }
+
+
+@router.post("/checkout")
+def checkout(data: CheckOutRequest):
+
+    db = SessionLocal()
+
+    result = check_out_service(
+        db,
+        data.user_id
+    )
+
+    db.close()
+
+    if not result:
+        return {
+            "message": "Attendance not found"
+        }
+
+    return {
+        "message": "Check Out Success",
+        "attendance_id": result.id,
+        "check_out": result.check_out
     }
